@@ -11,7 +11,8 @@ parse(input(Replacements, Molecule)) -->
     replacements(Replacements),
     string(Molecule), eol, eos.
 
-input(I) :- phrase_from_file(parse(I), 'day19.txt').
+input(Replacements,Molecule) :-
+    phrase_from_file(parse(input(Replacements,Molecule)), 'day19.txt').
 
 % Try to create new molecule with given replacement
 molecule(Input, From-To, New) :-
@@ -28,3 +29,21 @@ part1(Ans) :-
     aggregate(count, New, New^new_molecules(Molecule,Replacements,New), Ans).
 
 % part1=509
+
+%% part2 idea, run replacements backwards with a random permutation
+
+
+generate(Ans) :-
+    input(Rs, Mol),
+    random_permutation(Rs, Rand),
+    substitute(Rand, Mol, "e", 0, Ans).
+
+substitute(_, Target, Target, Steps, Steps).
+substitute(Rs, Current, Target, AtStep, Steps) :-
+    member(From-To, Rs),
+    AtStep1 is AtStep + 1,
+    molecule(Current1, From-To, Current),
+    substitute(Rs, Current1, Target, AtStep1, Steps).
+
+% part2=195
+% after multiple retries, a random permutation produced that
