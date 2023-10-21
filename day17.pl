@@ -1,68 +1,28 @@
-:- use_module(library(clpfd)).
-:- use_module(library(yall)).
+:- use_module(library(dcg/basics)).
+:- dynamic j/2.
 
-%% inc(Key, AssocIn, AssocOut) :-
-%%     (get_assoc(Key, AssocIn, V); V=0),
-%%     V1 is V + 1,
-%%     put_assoc(Key, AssocIn, V1, AssocOut).
+% define jugs as facts because they are indexed for
+% fast access.
+% we could also use a 20 arg compound term as an "array"
 
-%% % remove key when decrementing a 1
-%% dec(Key, AssocIn, AssocOut) :- get_assoc(Key, AssocIn, 1), del_assoc(Key, AssocIn, 1, AssocOut).
-%% dec(Key, AssocIn, AssocOut :- get_assoc(Key, AssocIn, V),
-%%                               V > 1,
-%%                               V1 = V - 1,
-%%                               put_assoc(Key, AssocIn, V1, AssocOut).
+jugs(N) --> integer(J), { assertz(j(N, J)), N1 is N + 1 },
+            eol, jugs(N1).
+jugs(20) --> eos.
 
-%% input(I) :-
-%%     empty_assoc(Empty),
-%%     foldl(inc, [33, 14, 18, 20, 45, 35, 16, 35, 1, 13, 18, 13, 50, 44, 48, 6, 24, 41, 30, 42],
-%%           Empty, I).
-
-
-%% % Exactly this jugs worth needed, succeed
-%% fits(Jugs, J) :- get_assoc(J, Jugs, _).
-
-%% fits(Jugs, N) :-
-%%     gen_assoc(J, Jugs, C),
-%%     N #> J,
-%%     N1 #= N - J,
-%%     dec(J, Jugs, Jugs1),
-%%     fits(Jugs1, N1).
-
-
-j( 1, 1).
-j( 2, 6).
-j( 3, 13).
-j( 4, 13).
-j( 5, 14).
-j( 6, 16).
-j( 7, 18).
-j( 8, 18).
-j( 9, 20).
-j(10, 24).
-j(11, 30).
-j(12, 33).
-j(13, 35).
-j(14, 35).
-j(15, 41).
-j(16, 42).
-j(17, 44).
-j(18, 45).
-j(19, 48).
-j(20, 50).
-
-on(N, B) :- 1 is (N>>(B-1)) /\ 1.
+input :-
+    retractall(j(_,_)),
+    phrase_from_file(jugs(0), 'day17.txt').
 
 sum_on(In, B, Acc, Out) :-
-    1 is getbit(In,B-1),
+    1 is getbit(In,B),
     j(B, N),
     Out is Acc + N.
 
-sum_on(In, B, Acc, Acc) :- 0 is getbit(In,(B-1)).
+sum_on(In, B, Acc, Acc) :- 0 is getbit(In,B).
 
 %% select by numeric bits
 take_jugs(In, Sum) :-
-    numlist(1,20,Bits),
+    numlist(0,19,Bits),
     foldl(sum_on(In), Bits, 0, Sum).
 
 count(1048577, 0).
@@ -73,6 +33,7 @@ count(N, Acc) :-
     ((take_jugs(N, 150), Inc = 1; Inc = 0)),
     Acc is Acc1 + Inc.
 
+part1(Ans) :- input, count(1, Ans).
 % part1=1304
 
 count_bits(N, Bits) :-
@@ -80,6 +41,11 @@ count_bits(N, Bits) :-
             getbit(N, 5)  + getbit(N, 6)  + getbit(N, 7)  + getbit(N, 8)  + getbit(N, 9) +
             getbit(N, 10) + getbit(N, 11) + getbit(N, 12) + getbit(N, 13) + getbit(N, 14) +
             getbit(N, 15) + getbit(N, 16) + getbit(N, 17) + getbit(N, 18) + getbit(N, 19).
+
+% A more concise list based count_bits variant that is much slower
+%count_bits(N, Bits) :-
+%    numlist(0, 19, Lst),
+%    foldl([B,Acc,Out]>>(Out is Acc + getbit(N,B)), Lst, 0, Bits).
 
 count_min_bits(1048577, 20).
 count_min_bits(N, Min) :-
@@ -96,5 +62,10 @@ count_with_bits(N, Bits, Acc) :-
     count_with_bits(N1, Bits, Acc1),
     ((count_bits(N, Bits), take_jugs(N, 150), Inc=1); Inc=0),
     Acc is Acc1 + Inc.
+
+part2(Ans) :-
+    input,
+    count_min_bits(1, Bits),
+    count_with_bits(1, Bits, Ans).
 
 % part2=18
