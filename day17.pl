@@ -36,16 +36,7 @@ count(N, Acc) :-
 part1(Ans) :- input, count(1, Ans).
 % part1=1304
 
-count_bits(N, Bits) :-
-    Bits is getbit(N, 0)  + getbit(N, 1)  + getbit(N, 2)  + getbit(N, 3)  + getbit(N, 4) +
-            getbit(N, 5)  + getbit(N, 6)  + getbit(N, 7)  + getbit(N, 8)  + getbit(N, 9) +
-            getbit(N, 10) + getbit(N, 11) + getbit(N, 12) + getbit(N, 13) + getbit(N, 14) +
-            getbit(N, 15) + getbit(N, 16) + getbit(N, 17) + getbit(N, 18) + getbit(N, 19).
-
-% A more concise list based count_bits variant that is much slower
-%count_bits(N, Bits) :-
-%    numlist(0, 19, Lst),
-%    foldl([B,Acc,Out]>>(Out is Acc + getbit(N,B)), Lst, 0, Bits).
+count_bits(N, Bits) :- Bits is popcount(N).
 
 count_min_bits(1048577, 20).
 count_min_bits(N, Min) :-
