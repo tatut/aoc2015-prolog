@@ -19,8 +19,6 @@ input(s(0,r(0,0),CS,Ins)) :- phrase_from_file(program(Prg), 'day23.txt'),
 
 % Register argument indexes
 
-state(S0,S1), [S1] --> [S0].
-
 pc(S,PC) :- arg(1, S, PC).
 cs(S,CS) :- arg(3, S, CS).
 ins(S,PC,Ins) :- arg(4, S, Instructions),
@@ -73,8 +71,6 @@ runm(_, S, S) :- pc(S, PC), cs(S, CS), PC >= CS.
 runm(_, SIn, SOut) :-
     pc(SIn, PC),
     ins(SIn, PC, Ins),
-    arg(2, SIn, Reg),
-    %writeln(running(pc(PC),ins(Ins),reg(Reg))),
     run(Ins, SIn, S1),
     runm(_, S1, SOut).
 
